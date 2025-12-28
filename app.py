@@ -16,6 +16,11 @@ class MarkdownAPI:
 
     filename = ""
     filedir = ""
+    modified = False
+
+    def mark_modified(self):
+        """Mark document as modified"""
+        self.modified = True
 
     def save_file_as(self, content):
         """Save markdown content to a new file"""
@@ -26,29 +31,21 @@ class MarkdownAPI:
     def save_file(self, content):
         """Save markdown content to file"""
         if not self.filename or not self.filedir:
-            if self.save_file_dialog():
-                try:
-                    filepath = os.path.join(self.filedir, self.filename)
-                    with open(filepath, "w", encoding="utf-8") as f:
-                        f.write(content)
-                    logging.info("Saved to %s", self.filename)
-                    return True
-                except (OSError, IOError) as e:
-                    logging.error("File operation failed: %s", str(e))
-                    return False
-            else:
+            # Open save dialog if filename or path not defined
+            if not self.save_file_dialog():
                 logging.info("File operation failed")
                 return False
-        else:
-            try:
-                filepath = os.path.join(self.filedir, self.filename)
-                with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(content)
-                logging.info("Saved to %s", self.filename)
-                return True
-            except (OSError, IOError) as e:
-                logging.error("File operation failed: %s", str(e))
-                return False
+        # Save content to file
+        try:
+            filepath = os.path.join(self.filedir, self.filename)
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(content)
+            logging.info("Saved to %s", self.filename)
+            self.modified = False
+            return True
+        except (OSError, IOError) as e:
+            logging.error("File operation failed: %s", str(e))
+            return False
 
     def save_file_dialog(self):
         """Open save dialog and save file
@@ -92,6 +89,7 @@ class MarkdownAPI:
                 with open(filepath, "r", encoding="utf-8") as f:
                     content = f.read()
                 logging.info("Opened %s", filepath)
+                self.modified = False
                 return {"success": True, "content": content}
             logging.info("Open cancelled")
             return {"success": False, "content": ""}

@@ -159,3 +159,7 @@ document.getElementById('openBtn').addEventListener('click', async () => {
             alert('Error opening file');
         });
 });
+
+document.getElementById('quitBtn').addEventListener('click', async () => {
+    await window.pywebview.api.quit_app();
+});
