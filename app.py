@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 
@@ -9,37 +10,62 @@ class MarkdownAPI:
     Python code to handle operations from the frontend
     """
 
-    def save_file(self, content, filename="document.md"):
+    filename = ""
+    filedir = ""
+
+    def save_file(self, content):
         """Save markdown content to file"""
-        try:
-            # Ensure .md extension
-            if not filename.endswith(".md"):
-                filename += ".md"
+        if not self.filename or not self.filedir:
+            if self.save_file_dialog():
+                try:
+                    filepath = os.path.join(self.filedir, self.filename)
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write(content)
+                    logging.info("Saved to %s", self.filename)
+                    return True
+                except (OSError, IOError) as e:
+                    logging.error("File operation failed: %s", str(e))
+                    return False
+            else:
+                logging.info("File operation failed")
+                return False
+        else:
+            try:
+                filepath = os.path.join(self.filedir, self.filename)
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(content)
+                logging.info("Saved to %s", self.filename)
+                return True
+            except (OSError, IOError) as e:
+                logging.error("File operation failed: %s", str(e))
+                return False
 
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write(content)
-            return {"success": True, "message": f"Saved to {filename}"}
-        except (OSError, IOError) as e:
-            return {"success": False, "message": f"File operation failed: {str(e)}"}
-
-    def save_file_dialog(self, content):
-        """Open save dialog and save file"""
+    def save_file_dialog(self):
+        """Open save dialog and save file
+        in case file name and path not yet defined"""
         try:
+            if self.filedir:
+                initial_dir = self.filedir
+            else:
+                initial_dir = str(Path.home())
             result = webview.windows[0].create_file_dialog(
                 webview.FileDialog.SAVE,
-                directory=str(Path.home()),
+                directory=initial_dir,
                 save_filename="document.md",
                 file_types=("Markdown Files (*.md)",),
             )
             if result:
                 # create_file_dialog returns a tuple, get first element
                 filepath = result[0] if isinstance(result, tuple) else result
-                with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(content)
-                return {"success": True, "message": f"Saved to {filepath}"}
-            return {"success": False, "message": "Save cancelled"}
-        except (OSError, IOError) as e:
-            return {"success": False, "message": f"File operation failed: {str(e)}"}
+                self.filedir, self.filename = os.path.split(filepath)
+                if not self.filename.endswith(".md"):
+                    self.filename += ".md"
+                return True
+            else:
+                return False
+        except OSError as e:
+            logging.error("Error trying to save file: %s", str(e))
+            return False
 
     def open_file_dialog(self):
         """Open file dialog and load markdown file"""
@@ -53,18 +79,16 @@ class MarkdownAPI:
             if result:
                 # create_file_dialog returns a tuple, get first element
                 filepath = result[0] if isinstance(result, tuple) else result
+                self.filedir, self.filename = os.path.split(filepath)
                 with open(filepath, "r", encoding="utf-8") as f:
                     content = f.read()
-                return {
-                    "success": True,
-                    "content": content,
-                    "filepath": filepath,
-                    "filename": Path(filepath).name,
-                    "message": f"Opened {filepath}",
-                }
-            return {"success": False, "message": "Open cancelled"}
+                logging.info("Opened %s", filepath)
+                return {"success": True, "content": content}
+            logging.info("Open cancelled")
+            return {"success": False, "content": ""}
         except (OSError, IOError) as e:
-            return {"success": False, "message": f"Failed to open file: {str(e)}"}
+            logging.error("Failed to open file: %s", str(e))
+            return {"success": False, "content": ""}
 
 
 if __name__ == "__main__":

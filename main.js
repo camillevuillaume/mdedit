@@ -39,16 +39,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     const content = editor.value();
     
     // Wait for pywebview API to be ready
-    await window.pywebview.api.save_file_dialog(content)
-        .then(result => {
-            if (result.success) {
-                console.log(result.message);
-                // alert('File saved successfully!');
-            } else {
-                console.error(result.message);
-                alert('Save failed: ' + result.message);
-            }
-        })
+    await window.pywebview.api.save_file(content)
         .catch(err => {
             console.error('Error:', err);
             alert('Error saving file');
@@ -64,11 +55,7 @@ document.getElementById('openBtn').addEventListener('click', async () => {
             if (result.success) {
                 // Update the editor with the opened file content
                 editor.value(result.content);
-                console.log(result.message);
                 // alert('File opened successfully!');
-            } else {
-                console.error(result.message);
-                alert('Opening failed: ' + result.message);
             }
         })
         .catch(err => {
