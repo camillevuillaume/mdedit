@@ -103,8 +103,16 @@ class MarkdownAPI:
 
     def quit_app(self):
         """Quit the application"""
+        if self.modified:
+            result = webview.windows[0].create_confirmation_dialog(
+                title="Unsaved Changes",
+                message="""You have unsaved changes.
+                    Do you want to quit without saving?"""
+            )
+            if not result:
+                logging.info("Quit cancelled by user")
+                return
         logging.info("Quitting application...")
-        print("Quitting application...")
         webview.windows[0].destroy()
 
 

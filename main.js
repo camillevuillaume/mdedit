@@ -93,6 +93,7 @@ function insertDate(dateValue) {
 
 // Listen for /date trigger
 editor.codemirror.on('change', function(cm, change) {
+    window.pywebview.api.mark_modified();  // Notify Python app of modification
     if (change.origin === '+input') {
         const cursor = cm.getCursor();
         const line = cm.getLine(cursor.line);
