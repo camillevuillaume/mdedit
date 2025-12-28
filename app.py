@@ -22,6 +22,10 @@ class MarkdownAPI:
         """Mark document as modified"""
         self.modified = True
 
+    def is_modified(self):
+        """Check if document is modified"""
+        return self.modified
+
     def save_file_as(self, content):
         """Save markdown content to a new file"""
         self.filename = ""
@@ -96,6 +100,12 @@ class MarkdownAPI:
         except (OSError, IOError) as e:
             logging.error("Failed to open file: %s", str(e))
             return {"success": False, "content": ""}
+
+    def quit_app(self):
+        """Quit the application"""
+        logging.info("Quitting application...")
+        print("Quitting application...")
+        webview.windows[0].destroy()
 
 
 if __name__ == "__main__":

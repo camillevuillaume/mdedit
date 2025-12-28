@@ -161,5 +161,5 @@ document.getElementById('openBtn').addEventListener('click', async () => {
 });
 
 document.getElementById('quitBtn').addEventListener('click', async () => {
-    await window.pywebview.api.quit_app();
+    window.pywebview.api.quit_app();
 });
