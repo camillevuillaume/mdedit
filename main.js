@@ -34,6 +34,89 @@ const editor = new EasyMDE({
 
 console.log('EasyMDE initialized successfully!');
 
+// Date picker functionality
+let datePickerPopup = null;
+let triggerPosition = null;
+
+function createDatePicker() {
+    const popup = document.createElement('div');
+    popup.className = 'date-picker-popup';
+    popup.innerHTML = `
+        <input type="date" id="date-input" class="date-input" />
+    `;
+    document.body.appendChild(popup);
+    return popup;
+}
+
+function showDatePicker(coords) {
+    if (!datePickerPopup) {
+        datePickerPopup = createDatePicker();
+    }
+    
+    datePickerPopup.style.display = 'block';
+    datePickerPopup.style.left = coords.left + 'px';
+    datePickerPopup.style.top = coords.bottom + 'px';
+    
+    const dateInput = document.getElementById('date-input');
+    dateInput.value = new Date().toISOString().split('T')[0];
+    dateInput.focus();
+    
+    // Handle date selection
+    dateInput.addEventListener('change', function() {
+        insertDate(this.value);
+    });
+    
+    // Handle Enter key
+    dateInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            insertDate(this.value);
+        } else if (e.key === 'Escape') {
+            hideDatePicker();
+        }
+    });
+}
+
+function hideDatePicker() {
+    if (datePickerPopup) {
+        datePickerPopup.style.display = 'none';
+    }
+}
+
+function insertDate(dateValue) {
+    if (triggerPosition) {
+        const doc = editor.codemirror.getDoc();
+        doc.replaceRange(dateValue, triggerPosition.start, triggerPosition.end);
+        editor.codemirror.focus();
+    }
+    hideDatePicker();
+}
+
+// Listen for /date trigger
+editor.codemirror.on('change', function(cm, change) {
+    if (change.origin === '+input') {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const beforeCursor = line.substring(0, cursor.ch);
+        
+        if (beforeCursor.endsWith('/date')) {
+            const coords = cm.cursorCoords(cursor, 'page');
+            triggerPosition = {
+                start: { line: cursor.line, ch: cursor.ch - 5 },
+                end: { line: cursor.line, ch: cursor.ch }
+            };
+            showDatePicker(coords);
+        }
+    }
+});
+
+// Close date picker when clicking outside
+document.addEventListener('click', function(e) {
+    if (datePickerPopup && !datePickerPopup.contains(e.target) && 
+        !e.target.classList.contains('CodeMirror')) {
+        hideDatePicker();
+    }
+});
+
 // Save to file functionality using PyWebView
 document.getElementById('saveBtn').addEventListener('click', async () => {
     const content = editor.value();
