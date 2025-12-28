@@ -130,6 +130,19 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 });
 
 
+// Save as functionality using PyWebView
+document.getElementById('saveAsBtn').addEventListener('click', async () => {
+    const content = editor.value();
+    
+    // Wait for pywebview API to be ready
+    await window.pywebview.api.save_file_as(content)
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error saving file');
+        });
+});
+
+
 // Open file functionality using PyWebView
 document.getElementById('openBtn').addEventListener('click', async () => {
     // Wait for pywebview API to be ready

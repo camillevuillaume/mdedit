@@ -1,3 +1,7 @@
+"""
+A simple markdown editor using pywebview
+"""
+
 import logging
 import os
 from pathlib import Path
@@ -12,6 +16,12 @@ class MarkdownAPI:
 
     filename = ""
     filedir = ""
+
+    def save_file_as(self, content):
+        """Save markdown content to a new file"""
+        self.filename = ""
+        self.filedir = ""
+        return self.save_file(content)
 
     def save_file(self, content):
         """Save markdown content to file"""
@@ -61,8 +71,7 @@ class MarkdownAPI:
                 if not self.filename.endswith(".md"):
                     self.filename += ".md"
                 return True
-            else:
-                return False
+            return False
         except OSError as e:
             logging.error("Error trying to save file: %s", str(e))
             return False
