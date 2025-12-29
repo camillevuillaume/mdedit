@@ -108,7 +108,7 @@ class MarkdownAPI:
             result = webview.windows[0].create_confirmation_dialog(
                 title="Unsaved Changes",
                 message="""You have unsaved changes.
-                    Do you want to quit without saving?"""
+                    Do you want to quit without saving?""",
             )
             if not result:
                 logging.info("Quit cancelled by user")
