@@ -4,6 +4,7 @@ A simple markdown editor using pywebview
 
 import logging
 import os
+import sys
 from pathlib import Path
 
 import webview
@@ -114,6 +115,7 @@ class MarkdownAPI:
                 return
         logging.info("Quitting application...")
         webview.windows[0].destroy()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
