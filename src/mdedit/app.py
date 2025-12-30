@@ -91,13 +91,22 @@ class MarkdownAPI:
                 # create_file_dialog returns a tuple, get first element
                 filepath = result[0] if isinstance(result, tuple) else result
                 self.filedir, self.filename = os.path.split(filepath)
-                with open(filepath, "r", encoding="utf-8") as f:
-                    content = f.read()
-                logging.info("Opened %s", filepath)
-                self.modified = False
-                return {"success": True, "content": content}
-            logging.info("Open cancelled")
+                return self.open_file()
             return {"success": False, "content": ""}
+        except OSError as e:
+            logging.error("Error trying to open file: %s", str(e))
+            return {"success": False, "content": ""}
+
+
+    def open_file(self):
+        """Open file dialog and load markdown file"""
+        filepath = os.path.join(self.filedir, self.filename)
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+            logging.info("Opened %s", filepath)
+            self.modified = False
+            return {"success": True, "content": content}
         except (OSError, IOError) as e:
             logging.error("Failed to open file: %s", str(e))
             return {"success": False, "content": ""}
