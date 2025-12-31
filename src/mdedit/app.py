@@ -97,7 +97,6 @@ class MarkdownAPI:
             logging.error("Error trying to open file: %s", str(e))
             return {"success": False, "content": ""}
 
-
     def open_file(self):
         """Open file dialog and load markdown file"""
         filepath = os.path.join(self.filedir, self.filename)
