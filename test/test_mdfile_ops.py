@@ -1,3 +1,9 @@
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-class-docstring
+# pylint: missing-function-docstring
+# pylint: too-few-public-methods
+""" File operations tests for mdedit application. """
+
 # import os
 # import sys
 # import threading
@@ -5,6 +11,7 @@
 from pathlib import Path
 
 import pytest
+import webview
 
 from mdedit import app
 
@@ -32,15 +39,17 @@ def api_instance():
     return api
 
 
-def test_open_file(temp_md_file, api_instance):
+def test_open_file(api_instance, temp_md_file):
     """Test opening a markdown file."""
+    _ = temp_md_file  # Ensure the temp file is created
+
     api_instance.filename = "test_open.md"
     api_instance.filedir = str(tmp_folder)
     result = api_instance.open_file()
 
     assert result["success"] is True
     assert result["content"] is not None
-    assert result["content"] == "# Test Markdown\n\nThis is a test file for mdedit."
+    assert result["content"] == "# Test Markdown\n\nThis is a test file for mdedit."  # noqa: E501
 
 
 def test_save_file(api_instance):
@@ -57,3 +66,40 @@ def test_save_file(api_instance):
         saved_content = f.read()
         assert saved_content == content
 
+
+def test_save_file_dialog(api_instance, monkeypatch):
+    """Test the save file dialog functionality."""
+
+    # Create a mock window object
+    class MockWindow:
+        def create_file_dialog(self, *_args, **_kwargs):
+            return (str(tmp_folder / "test_dialog_save.md"),)
+
+    # Mock the webview.windows list with our mock window
+    monkeypatch.setattr(webview, "windows", [MockWindow()])
+
+    result = api_instance.save_file_dialog()
+
+    assert result is True
+    assert api_instance.filename == "test_dialog_save.md"
+    assert api_instance.filedir == str(tmp_folder)
+
+
+def test_save_file_dialog_cancel(api_instance, monkeypatch):
+    """Test the save file dialog functionality."""
+    api_instance.filename = "cancel.md"
+    api_instance.filedir = "cancel_dir"
+
+    # Create a mock window object
+    class MockWindow:
+        def create_file_dialog(self, *_args, **_kwargs):
+            return None
+
+    # Mock the webview.windows list with our mock window
+    monkeypatch.setattr(webview, "windows", [MockWindow()])
+
+    result = api_instance.save_file_dialog()
+
+    assert result is False
+    assert api_instance.filename == "cancel.md"
+    assert api_instance.filedir == "cancel_dir"

@@ -11,5 +11,19 @@ authors = [
 ]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["tests"]
+testpaths = ["test"]
 python_files = "test_*.py"
+[tool.pylint.main]
+init-hook ="""
+try:
+  import pylint_venv
+except ImportError:
+  pass
+else:
+  pylint_venv.inithook()
+"""
+[tool.pylint.format]
+max-line-length = 100
+[tool.black]
+line-length = 100
+
