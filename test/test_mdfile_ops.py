@@ -1,7 +1,7 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-class-docstring
-# pylint: missing-function-docstring
-# pylint: too-few-public-methods
+# pylint: disable=missing-function-docstring
+# pylint: disable=too-few-public-methods
 """ File operations tests for mdedit application. """
 
 # import os

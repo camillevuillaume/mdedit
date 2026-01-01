@@ -126,10 +126,13 @@ class MarkdownAPI:
         sys.exit(0)
 
 
-if __name__ == "__main__":
+def run():
+    """Run the markdown editor application"""
     api = MarkdownAPI()
-    dist_path = os.path.join(os.path.dirname(__file__), "dist", "index.html")
-    window = webview.create_window(
-        "Markdown Editor", dist_path, js_api=api, width=1200, height=800
-    )
+    dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
+    window = webview.create_window("Markdown Editor", dist_path, js_api=api, width=1200, height=800)
     webview.start()
+
+
+if __name__ == "__main__":
+    run()

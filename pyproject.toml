@@ -5,10 +5,25 @@ version = "0.1.0"
 description = "An editor for markdown files based on EasyMDE and PyWebView."
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
 authors = [
     {name = "Camille Vuillaume", email = "camillevuillaume@gmail.com"}
 ]
+dependencies = [
+    "pywebview",
+    "setuptools",
+#    "PySide6",
+]
+[project.scripts]
+mdedit = "mdedit.app:run"
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools]
+include-package-data = true
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.setuptools.package-data]
+"mdedit" = ["frontend/**", "frontend/*"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["test"]
