@@ -1,3 +1,7 @@
 src/mdedit.egg-info
 dist
 node_modules
+__pycache__/
+build/
+src/mdedit/__pycache__/
+test/__pycache__/
