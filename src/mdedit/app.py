@@ -5,6 +5,7 @@ A simple markdown editor using pywebview
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 
 import webview
@@ -18,6 +19,7 @@ class MarkdownAPI:
     filename = ""
     filedir = ""
     modified = False
+    window = None
 
     def mark_modified(self):
         """Mark document as modified"""
@@ -55,12 +57,15 @@ class MarkdownAPI:
     def save_file_dialog(self):
         """Open save dialog and save file
         in case file name and path not yet defined"""
+        if self.window is None:
+            logging.error("Window not initialized")
+            return False
         try:
             if self.filedir:
                 initial_dir = self.filedir
             else:
                 initial_dir = str(Path.home())
-            result = webview.windows[0].create_file_dialog(
+            result = self.window.create_file_dialog(
                 webview.FileDialog.SAVE,
                 directory=initial_dir,
                 save_filename="document.md",
@@ -80,8 +85,11 @@ class MarkdownAPI:
 
     def open_file_dialog(self):
         """Open file dialog and load markdown file"""
+        if self.window is None:
+            logging.error("Window not initialized")
+            return {"success": False, "content": ""}
         try:
-            result = webview.windows[0].create_file_dialog(
+            result = self.window.create_file_dialog(
                 webview.FileDialog.OPEN,
                 directory=str(Path.home()),
                 allow_multiple=False,
@@ -112,8 +120,11 @@ class MarkdownAPI:
 
     def quit_app(self):
         """Quit the application"""
+        if self.window is None:
+            logging.error("Window not initialized")
+            return
         if self.modified:
-            result = webview.windows[0].create_confirmation_dialog(
+            result = self.window.create_confirmation_dialog(
                 title="Unsaved Changes",
                 message="""You have unsaved changes.
                     Do you want to quit without saving?""",
@@ -122,23 +133,20 @@ class MarkdownAPI:
                 logging.info("Quit cancelled by user")
                 return
         logging.info("Quitting application...")
-        if webview.windows:
-            window = webview.windows[0]
-            window.hide()
-            window.destroy()
-        # webview.windows[0].destroy()
-        sys.exit(0)
+        if self.window:
+            self.window.destroy()
+
+    def run(self):
+        """Run the application"""
+        dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
+        self.window = webview.create_window(
+            "Markdown Editor", dist_path, js_api=self, width=1200, height=800
+        )
+        webview.start(gui="qt")
 
 
 def run():
     """Run the markdown editor application"""
     api = MarkdownAPI()
-    dist_path = os.path.join(os.path.dirname(
-        __file__), "frontend", "dist", "index.html")
-    window = webview.create_window(
-        "Markdown Editor", dist_path, js_api=api, width=1200, height=800)
-    webview.start(gui="qt")
-
-
-if __name__ == "__main__":
-    run()
+    api.run()
+    sys.exit(0)

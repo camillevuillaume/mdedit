@@ -11,7 +11,7 @@ authors = [
 dependencies = [
     "pywebview[qt]",
     "setuptools",
-    "PySide6",
+    # "PySide5",
 ]
 [project.scripts]
 mdedit = "mdedit.app:run"
