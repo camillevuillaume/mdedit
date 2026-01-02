@@ -122,15 +122,21 @@ class MarkdownAPI:
                 logging.info("Quit cancelled by user")
                 return
         logging.info("Quitting application...")
-        webview.windows[0].destroy()
+        if webview.windows:
+            window = webview.windows[0]
+            window.hide()
+            window.destroy()
+        # webview.windows[0].destroy()
         sys.exit(0)
 
 
 def run():
     """Run the markdown editor application"""
     api = MarkdownAPI()
-    dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
-    window = webview.create_window("Markdown Editor", dist_path, js_api=api, width=1200, height=800)
+    dist_path = os.path.join(os.path.dirname(
+        __file__), "frontend", "dist", "index.html")
+    window = webview.create_window(
+        "Markdown Editor", dist_path, js_api=api, width=1200, height=800)
     webview.start(gui="qt")
 
 
