@@ -9,9 +9,9 @@ authors = [
     {name = "Camille Vuillaume", email = "camillevuillaume@gmail.com"}
 ]
 dependencies = [
-    "pywebview",
+    "pywebview[qt]",
     "setuptools",
-#    "PySide6",
+    "PySide6",
 ]
 [project.scripts]
 mdedit = "mdedit.app:run"
