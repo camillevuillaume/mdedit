@@ -15,16 +15,18 @@ The following packages are needed:
 - python3
 - pip3
 - npm
-Although it should be possible to install requirements via pip, I had no luck with GTK or QT (Pyside6) in a python virtual environment.
-As a consequence, you will also need to install PyWebview, and create a Python virtual environment in the project folder as follows:
+First of all, create a Python virtual environment to install dependencies.
 ```
-python3 -m venv --system-site-packages .venv
+python3 -m venv .venv
 ```
 If necessary, activate the venv:
 ```
 source ".venv/bin/activate"
 ```
-This will install requirements on both python and npm side.
+And then, if necessary install the requirements and the app.
+```
+pip install .
+```
 Now you can run the program with the command `mdedit`.
 
 ## Testing
