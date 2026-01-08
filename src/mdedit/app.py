@@ -4,11 +4,11 @@ A simple markdown editor using pywebview
 
 import logging
 import os
-import sys
-import time
 from pathlib import Path
 
 import webview
+
+from mdedit.completion import LlamaCppCompletionProvider
 
 
 class MarkdownAPI:
@@ -20,6 +20,14 @@ class MarkdownAPI:
     filedir = ""
     modified = False
     window = None
+    completion = None
+
+    def __init__(self):
+        self.completion = LlamaCppCompletionProvider()
+
+    def get_completion(self, prompt):
+        """Get AI completion for the given prompt"""
+        return self.completion.complete(prompt)
 
     def mark_modified(self):
         """Mark document as modified"""
@@ -127,14 +135,13 @@ class MarkdownAPI:
             result = self.window.create_confirmation_dialog(
                 title="Unsaved Changes",
                 message="""You have unsaved changes.
-                    Do you want to quit without saving?""",
+                    Do you want to quiti without saving?""",
             )
             if not result:
                 logging.info("Quit cancelled by user")
                 return
         logging.info("Quitting application...")
-        if self.window:
-            self.window.destroy()
+        self.window.destroy()
 
     def run(self):
         """Run the application"""
@@ -142,11 +149,12 @@ class MarkdownAPI:
         self.window = webview.create_window(
             "Markdown Editor", dist_path, js_api=self, width=1200, height=800
         )
-        webview.start(gui="qt")
+        # webview.start(gui="qt")
+        # webview.start(debug=True, gui="gtk")
+        webview.start(gui="gtk")
 
 
 def run():
     """Run the markdown editor application"""
     api = MarkdownAPI()
     api.run()
-    sys.exit(0)

@@ -2,6 +2,7 @@ import EasyMDE from "easymde";
 import "easymde/dist/easymde.min.css";
 import "./style.css";
 
+
 // Initialize the editor
 const editor = new EasyMDE({
   element: document.getElementById("editor"),
@@ -113,7 +114,9 @@ document.addEventListener("click", function(e) {
 
 // Listen for change in editor
 editor.codemirror.on("change", function(cm, change) {
-  window.pywebview.api.mark_modified(); // Notify Python app of modification
+  if (window.pywebview && window.pywebview.api) {
+    window.pywebview.api.mark_modified();
+  }
   if (change.origin === "+input") {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
@@ -127,14 +130,38 @@ editor.codemirror.on("change", function(cm, change) {
       };
       showDatePicker(coords);
     }
+    else if (beforeCursor.endsWith("/complete")) {
+      const triggerPos = {
+        start: { line: cursor.line, ch: cursor.ch - 9 },
+        end: { line: cursor.line, ch: cursor.ch },
+      };
+      const content = editor.value();
+      completeText(content, triggerPos, cm);
+    }
   }
 });
+
+// Function to call Python API for text completion
+async function completeText(content, triggerPos, cm) {
+  try {
+    const completion = await window.pywebview.api.get_completion(content);
+    if (completion) {
+      cm.replaceRange(
+        completion,
+        triggerPos.start,
+        triggerPos.end
+      );
+      cm.focus();
+    }
+  } catch (err) {
+    console.error("Error during completion:", err);
+  }
+}
 
 // Save to file functionality using PyWebView
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const content = editor.value();
 
-  // Wait for pywebview API to be ready
   await window.pywebview.api.save_file(content).catch((err) => {
     console.error("Error:", err);
     alert("Error saving file");
@@ -145,7 +172,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 document.getElementById("saveAsBtn").addEventListener("click", async () => {
   const content = editor.value();
 
-  // Wait for pywebview API to be ready
   await window.pywebview.api.save_file_as(content).catch((err) => {
     console.error("Error:", err);
     alert("Error saving file");
@@ -154,14 +180,11 @@ document.getElementById("saveAsBtn").addEventListener("click", async () => {
 
 // Open file functionality using PyWebView
 document.getElementById("openBtn").addEventListener("click", async () => {
-  // Wait for pywebview API to be ready
   await window.pywebview.api
     .open_file_dialog()
     .then((result) => {
       if (result.success) {
-        // Update the editor with the opened file content
         editor.value(result.content);
-        // alert('File opened successfully!');
       }
     })
     .catch((err) => {

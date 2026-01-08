@@ -9,9 +9,9 @@ authors = [
     {name = "Camille Vuillaume", email = "camillevuillaume@gmail.com"}
 ]
 dependencies = [
-    "pywebview[qt]",
+    "pywebview[gtk]",
     "setuptools",
-    # "PySide5",
+    "requests",
 ]
 [project.scripts]
 mdedit = "mdedit.app:run"
@@ -39,6 +39,8 @@ else:
 """
 [tool.pylint.format]
 max-line-length = 100
+[tool.pylint.messages_control]
+disable = ["too-many-arguments"]
 [tool.black]
 line-length = 100
 
