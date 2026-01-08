@@ -135,26 +135,34 @@ class MarkdownAPI:
             result = self.window.create_confirmation_dialog(
                 title="Unsaved Changes",
                 message="""You have unsaved changes.
-                    Do you want to quiti without saving?""",
+                    Do you want to quit without saving?""",
             )
             if not result:
                 logging.info("Quit cancelled by user")
                 return
         logging.info("Quitting application...")
-        self.window.destroy()
-
+        # Use a small delay to avoid Qt event loop conflicts
+        import threading
+        def delayed_quit():
+            import time
+            time.sleep(0.01)  # Small delay
+            if self.window:
+                self.window.destroy()
+        threading.Thread(target=delayed_quit, daemon=True).start()    
+        
     def run(self):
         """Run the application"""
         dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
         self.window = webview.create_window(
             "Markdown Editor", dist_path, js_api=self, width=1200, height=800
         )
-        # webview.start(gui="qt")
+        webview.start(gui="qt")
         # webview.start(debug=True, gui="gtk")
-        webview.start(gui="gtk")
+        # webview.start(gui="gtk")
 
 
 def run():
     """Run the markdown editor application"""
     api = MarkdownAPI()
     api.run()
+
