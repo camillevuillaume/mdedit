@@ -103,3 +103,64 @@ def test_save_file_dialog_cancel(api_instance, monkeypatch):
     assert result is False
     assert api_instance.filename == "cancel.md"
     assert api_instance.filedir == "cancel_dir"
+
+
+# Additional comprehensive tests added for better test coverage
+def test_mark_modified(api_instance):
+    """Test marking document as modified."""
+    assert api_instance.is_modified() is False
+    api_instance.mark_modified()
+    assert api_instance.is_modified() is True
+
+
+def test_open_file_with_nonexistent_file(api_instance):
+    """Test opening a file that doesn't exist."""
+    api_instance.filename = "nonexistent.md"
+    api_instance.filedir = "/tmp"
+    
+    result = api_instance.open_file()
+    
+    assert result["success"] is False
+    assert result["content"] == ""
+
+
+def test_filename_and_filedir_properties(api_instance):
+    """Test that filename and filedir properties work correctly."""
+    api_instance.filename = "test.md"
+    api_instance.filedir = "/tmp"
+    
+    assert api_instance.filename == "test.md"
+    assert api_instance.filedir == "/tmp"
+
+
+def test_is_modified_property(api_instance):
+    """Test that is_modified property works correctly."""
+    assert api_instance.is_modified() is False
+    api_instance.mark_modified()
+    assert api_instance.is_modified() is True
+
+
+def test_save_file_with_empty_content(api_instance):
+    """Test saving file with empty content."""
+    # Set up a valid file path
+    api_instance.filename = "test_empty.md"
+    api_instance.filedir = str(tmp_folder)
+    
+    result = api_instance.save_file("")
+    
+    # This should not crash
+    assert result is True  # The method should not crash
+
+
+def test_save_file_with_simple_content(api_instance):
+    """Test saving file with simple content."""
+    content = "# Test Document\n\nThis is a test."
+    
+    # Set up a valid file path
+    api_instance.filename = "test_simple.md"
+    api_instance.filedir = str(tmp_folder)
+    
+    result = api_instance.save_file(content)
+    
+    # This should not crash
+    assert result is True  # The method should not crash
